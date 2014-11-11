@@ -1,0 +1,102 @@
+#!/bin/bash
+
+if [ -n "${__HISI_AUTELAN_APPS__}" ]; then
+	return
+else
+	__HISI_AUTELAN_APPS__="$0"
+fi
+
+echo "hisitopdir=${hisitopdir}"
+
+auteapps=
+
+#
+# libs
+#
+app_libubox=libubox
+auteapps="${auteapps} ${app_libubox}"
+
+app_jsonc=json-c
+auteapps="${auteapps} ${app_jsonc}"
+
+app_zlib=zlib-1.2.8
+auteapps="${auteapps} ${app_zlib}"
+
+app_libxml2=libxml2-2.9.1
+auteapps="${auteapps} ${app_libxml2}"
+
+app_libxslt=libxslt-1.1.28
+auteapps="${auteapps} ${app_libxslt}"
+
+app_openssl=openssl-1.0.1i
+auteapps="${auteapps} ${app_openssl}"
+
+app_pcre=pcre-8.35
+auteapps="${auteapps} ${app_pcre}"
+
+app_popt=popt-1.14
+auteapps="${auteapps} ${app_popt}"
+
+app_onig=onig-5.9.5
+auteapps="${auteapps} ${app_onig}"
+
+#
+# apps
+#
+app_bash=bash-4.3
+auteapps="${auteapps} ${app_bash}"
+
+app_coreutils=coreutils-8.23
+auteapps="${auteapps} ${app_coreutils}"
+
+app_curl=curl-7.38.0
+auteapps="${auteapps} ${app_curl}"
+
+app_dnsmasq=dnsmasq-2.72
+auteapps="${auteapps} ${app_dnsmasq}"
+
+app_dropbear=dropbear-2014.65
+auteapps="${auteapps} ${app_dropbear}"
+
+app_jq=jq
+auteapps="${auteapps} ${app_jq}"
+
+app_nginx=nginx-1.6.1
+auteapps="${auteapps} ${app_nginx}"
+
+app_ntpclient=ntpclient-2010
+auteapps="${auteapps} ${app_ntpclient}"
+
+app_openssh=openssh-6.6p1
+auteapps="${auteapps} ${app_openssh}"
+
+app_php=php-5.6.0
+auteapps="${auteapps} ${app_php}"
+
+app_rsync=rsync-3.1.1
+auteapps="${auteapps} ${app_rsync}"
+
+#app_sudo=sudo-1.8.10p3
+#auteapps="${auteapps} ${app_sudo}"
+
+app_sshpass=sshpass-1.05
+auteapps="${auteapps} ${app_sshpass}"
+
+app_squashfs=squashfs4.3
+auteapps="${auteapps} ${app_squashfs}"
+
+app_util_linux_ng=util-linux-ng-2.18
+auteapps="${auteapps} ${app_util_linux_ng}"
+
+app_wifidog=wifidog
+auteapps="${auteapps} ${app_wifidog}"
+
+app_xinetd=xinetd-2.3.15
+auteapps="${auteapps} ${app_xinetd}"
+
+app_xmlstarlet=xmlstarlet-1.6.1
+auteapps="${auteapps} ${app_xmlstarlet}"
+
+export auteapps
+echo "auteapps=${auteapps}"
+

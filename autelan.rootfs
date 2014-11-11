@@ -1,0 +1,103 @@
+#!/bin/bash
+
+. autelan.in
+
+#
+# build, make install to ${auterelease}
+#
+do_build() {
+	local app
+
+	${autepackage}/.copy.script package_to_rootfs
+
+	for app in ${auteapps}; do
+		if [ -d "${auterootfs}/${app}" ]; then
+			(
+			cd ${auterootfs}/${app}
+			echo "cd ${auterootfs}/${app}"
+			if [ -x "./autelan.build" ]; then
+				echo "******************************************"
+				echo "begin build ${app}"
+				echo "******************************************"
+
+				./autelan.build
+
+			        echo "******************************************"
+                                echo "end build ${app}"
+                                echo "******************************************"
+
+				sleep 1
+			fi
+			)
+		fi
+	done
+}
+
+do_clean() {
+        local file
+
+        pushd ${auterootfs}
+        for file in ${auteapps}; do
+                if [[ -d "$file" && "$file" != "${app_nginx}" ]]; then
+                        pushd $file
+                                if [ -x autelan.build ]; then
+                                        make clean
+                                fi
+                        popd
+                fi
+        done
+        popd
+	RM ${auterelease}/* ${autefake}/*
+}
+
+#
+# strip files in ${auterelease}
+#
+do_strip() {
+        find ${auterelease} -type f | xargs arm-hisiv200-linux-strip >/dev/null 2>&1
+}
+
+do_install() {
+	rm -f ${hisirootfs}/etc/resolv.conf
+        echo "======================================="
+        echo "rm -f ${hisirootfs}/etc/resolv.conf"
+        echo "======================================="
+
+	CP release/* ${hisirootfs}
+	CP custom/* ${hisirootfs}
+
+	rm -fr ${hisitopdir}/pub/rootfs_data/*
+	CP rootfs_data/* ${hisitopdir}/pub/rootfs_data
+
+	pushd ${hisirootfs}/bin
+	rm -f sh; ln -sf bash sh
+	popd
+}
+
+main() {
+	local action=$1
+
+	case "${action}" in
+"build")
+	do_build
+	do_strip
+	do_install
+	;;
+"install")
+	if [ ! -d "${auterelease}/bin" ]; then
+		do_build
+	fi
+	do_strip
+	do_install
+	;;
+"clean")
+	do_clean
+	;;
+*)
+	echo "$0 build/install/clean"
+	;;
+	esac
+}
+
+main $@
+
