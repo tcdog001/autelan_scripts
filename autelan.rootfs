@@ -23,14 +23,11 @@ main() {
 	local action=$1
 
 	case "${action}" in
-"build")
-	do_install
-	;;
 "install")
 	do_install
 	;;
 *)
-	echo "$0 build/install/clean"
+	echo "warning: only support $0 install!"
 	;;
 	esac
 }

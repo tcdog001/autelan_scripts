@@ -1,10 +1,10 @@
 all:build
 
 build:
-	./autelan.rootfs build
+	@echo "warning: only support make install!"
 clean:
-	./autelan.rootfs clean
+	@echo "warning: only support make install!"
 install:
 	./autelan.rootfs install
 uninstall:
-	echo "no support uninstall"
+	@echo "warning: only support make install!"

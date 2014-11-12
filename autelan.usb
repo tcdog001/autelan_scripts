@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dir_base=/opt/version/lte-fi/mdboard
+. autelan.in
 
 usb_list="fastboot-burn.bin hi_kernel.bin pq_param_hi3718cv100.bin"
 fs_list="rootfs_200M.ext4 rootfs_data_3000M.ext4"
@@ -16,23 +16,23 @@ make_usb() {
 	local file
 
 	echo "${info}..."
-	sudo mkdir -p ${dir_base}/upgrade
-	sudo rm -fr ${dir_base}/upgrade/*
-	sudo cp -fpR ${dir_base}/${version}/* ${dir_base}/upgrade
+	mkdir -p ${dir_base}/upgrade
+	rm -fr ${dir_base}/upgrade/*
+	#cp -fpR ${dir_base}/${version}/* ${dir_base}/upgrade
 	
 	pushd ${dir_base}/upgrade > /dev/null
-	sudo rm -f ${fs_list}
-	sudo cp -fp rootfs/usr/sbin/usbub.sh .
-	sudo cp -fp rootfs/etc/upgrade/usbupgrade .
+	rm -f ${fs_list}
+	cp -fp ${hisitopdir}/histb/pub/rootfs/usr/sbin/usbub.sh .
+	cp -fp ${hisitopdir}/histb/pub/rootfs/etc/upgrade/usbupgrade .
 	for file in ${usb_list}; do
-		sudo ln -sf rootfs/image/${file} ${file}
+		ln -sf rootfs/image/${file} ${file}
 	done
 	popd > /dev/null
 	
 	pushd ${dir_base} > /dev/null
 	local usbfile=usb.upgrade-${version}.tar.gz 
-	sudo rm -f ${usbfile}
-	sudo tar zcvf ${usbfile} upgrade/
+	rm -f ${usbfile}
+	tar zcvf ${usbfile} upgrade/
         popd > /dev/null
 	echo "OK: ${info}"
 }
@@ -44,9 +44,11 @@ main() {
 	local version=$1
 
 	if [ -z "${version}" ]; then
-		version=$(cat ${hisitopdir}/autelan/custom/etc/.version)
+		version=$(cat ${hisitopdir}/custom/etc/.version)
 	fi
 
+	dir_base="mdboard"
+	echo "make_usb ${dir_base} ${version}"
 	make_usb ${dir_base} ${version}
 }
 
