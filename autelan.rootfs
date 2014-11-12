@@ -9,6 +9,14 @@ do_install() {
         echo "======================================="
 
 	CP ${AUTELAN_DIR}/../release/* ${hisirootfs}
+	
+	rm -fr ../custom/etc/jsock/*
+	rm -fr ../custom/etc/utils/*
+	rm -fr ../custom/etc/xinetd.d/*
+	rm -fr ../custom/etc/upgrade/*
+	CP -fpR ../share/etc/* ../custom/etc/
+	CP -fpR ../share/usr/sbin/* ../custom/usr/sbin/
+	CP ../share/* ../custom/*
 	CP ../custom/* ${hisirootfs}
 
 	rm -fr ${hisitopdir}/histb/pub/rootfs_data/*
