@@ -7,7 +7,6 @@ else
 fi
 
 if [ -n "${AUTELAN_DIR}" ]; then
-	echo "AUTELAN_DIR=${AUTELAN_DIR}"
 	. ${AUTELAN_DIR}/autelan.env
 	. ${AUTELAN_DIR}/autelan.apps
 else

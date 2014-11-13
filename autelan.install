@@ -1,90 +1,24 @@
 #!/bin/bash
 
-. ${hisitopdir}/autelan/custom/etc/utils/utils.in
+if [ "" == "$1" ]; then
+	. autelan.in
+else
+	hisitopdir=$1
+fi
 
-rsync_script=/home/hisisdk/script/rsync.sh
-ssh_script=/home/hisisdk/script/ssh.sh
+pushd ${hisitopdir}/custom/etc/utils/
+. utils.in
+popd
 
-dir_base=/opt/version/lte-fi/mdboard
-dir_pub=${hisitopdir}/pub
+dir_base=${hisitopdir}/lte-fi/mdboard
+dir_pub=${hisitopdir}/histb/pub
 dir_rootfs=${dir_pub}/rootbox
 dir_rootfs_data=${dir_pub}/rootfs_data
 dir_image=${dir_pub}/image
-version=$(cat ${hisitopdir}/autelan/custom/etc/.version)
+version=$(cat ${hisitopdir}/custom/etc/.version)
 
 usb_list="fastboot-burn.bin hi_kernel.bin pq_param_hi3718cv100.bin"
 fs_list="rootfs_200M.ext4 rootfs_data_3000M.ext4"
-
-rsync_config=${hisitopdir}/autelan/.rsync.conf
-
-#
-#$1:ip
-#$2:basedir
-#$3:version
-#$4:user
-#$5:pass
-#
-rsync_to_remote() {
-        local ip=$1
-        local basedir=$2
-        local version=$3
-	local user=$4
-	local pass=$5
-        local cloud
-        local dir=${basedir}/${version}
-        local trunk=${basedir}/trunk
-        local cloud=${ip}:${trunk}
-        local info="rsync version:${version} from ${dir} to ${cloud}"
-	local param="--ignore-times"
-	local file
-        local cmd
-
-        #
-        # create trunk
-        #
-        cmd="mkdir -p ${trunk}/rootfs"
-        sudo ${ssh_script} "${ip}" "${user}" "${pass}" "${cmd}"
-
-        #
-        # rsync local version to cloud trunk
-        #
-        sudo ${rsync_script} "${dir}/rootfs" "${cloud}/rootfs" "${user}" "${pass}" ${param}
-        for file in ${fs_list}; do
-                sudo ${rsync_script} "${dir}/${file}" "${cloud}/${file}" "${user}" "${pass}" ${param}
-        done
-	for file in ${usb_list}; do
-		cmd="cp -fp ${trunk}/rootfs/image/${file} ${trunk}"
-		sudo ${ssh_script} "${ip}" "${user}" "${pass}" "${cmd}"
-	done
-	sudo ${ssh_script} "${ip}" "${user}" "${pass}" "find ${trunk} | xargs touch"
-
-        #
-        # copy trunk to version on cloud
-        #
-        cmd="rm -fr ${dir}"
-        cmd="${cmd} && mkdir -p ${dir}/rootfs"
-        cmd="${cmd} && cp -fpR ${trunk}/* ${dir}"
-        sudo ${ssh_script} "${ip}" "${user}" "${pass}" "${cmd}"
-        echo; sleep 1
-}
-
-#
-#$1:basedir
-#$2:version
-#
-backup_to_remote() {
-	local basedir=$1
-	local version=$2
-	local ip
-	local pass
-	local tag
-
-        while read ip pass tag; do	
-		(rsync_to_remote "${ip}" "${basedir}" "${version}" "root" "${pass}")&
-	done < ${rsync_config}
-}
-#               local cmd="${hisitopdir}/hisisdk/autelan/autelan.usb"
-#               ${ssh_script} "${ip}" "${user}" "${pass}" "${cmd}"
 
 #
 #$1:dir
@@ -95,30 +29,36 @@ copy_to_local() {
 
 	info="install version:${version} from ${dir_rootfs} to ${dir}"
 	echo "${info}..."
-	sudo rm -fr ${dir}
-	sudo mkdir -p ${dir}/rootfs ${dir}/rootfs_data
 
-	sudo cp -fpR ${dir_rootfs}/* ${dir}/rootfs
-	sudo chown -R root:root ${dir}/rootfs
+	chown -R $(whoami):$(whoami) ${dir}
+	rm -fr ${dir}
 
-	sudo cp -fpR ${dir_rootfs_data}/* ${dir}/rootfs_data
-        sudo chown -R root:root ${dir}/rootfs_data
+	mkdir -p ${dir}/rootfs ${dir}/rootfs_data
+	echo "#### cp -fpR ${dir_rootfs}/* ${dir}/rootfs ####"
+	cp -fpR ${dir_rootfs}/* ${dir}/rootfs
+	chown -R root:root ${dir}/rootfs
+	echo "#### cp -fpR ${dir_rootfs_data}/* ${dir}/rootfs_data #####"
+	cp -fpR ${dir_rootfs_data}/* ${dir}/rootfs_data
+        chown -R root:root ${dir}/rootfs_data
+	
+	pushd ${dir}/rootfs/dev
+	mknod console c 5 1
+	mknod ttyAMA0 c 204 64
+	mknod ttyAMA1 c 204 65
+	mknod ttyS000 c 204 64
+	popd
+
 	echo "OK:${info}"
 	echo; sleep 1
 
 	for file in ${fs_list} ${usb_list}; do
-		sudo cp -f ${dir_image}/${file} ${dir}
-		sudo chown -R root:root ${dir}/${file}
+		cp -f ${dir_image}/${file} ${dir}
+		chown -R root:root ${dir}/${file}
 	done
 }
 
 main() {
 	copy_to_local ${dir_base}/${version}
-	copy_to_local ${dir_base}/trunk
-
-	rsync_to_remote 182.254.198.168 ${dir_base} ${version} root ltefi@Autelan1
-	rsync_to_remote 192.168.15.26 	${dir_base} ${version} root AutelanE830
-	rsync_to_remote 192.168.15.112 	${dir_base} ${version} root AutelanE830
 }
 
 main "$@"

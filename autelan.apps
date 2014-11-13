@@ -5,7 +5,7 @@ if [ -n "${__HISI_AUTELAN_APPS__}" ]; then
 else
 	__HISI_AUTELAN_APPS__="$0"
 fi
-
+echo
 echo "hisitopdir=${hisitopdir}"
 
 auteapps=
