@@ -15,23 +15,27 @@ fs_list="rootfs_200M.ext4 rootfs_data_3000M.ext4"
 rsync_config=${hisitopdir}/autelan_scripts/.rsync.conf
 
 #
-#$1:ip
-#$2:basedir
-#$3:version
-#$4:user
-#$5:pass
+#$1:localbasedir
+#$2:ip
+#$3:basedir
+#$4:version
+#$5:user
+#$6:pass
 #
 rsync_to_remote() {
-        local ip=$1
-        local basedir=$2
-        local version=$3
-	local user=$4
-	local pass=$5
+        local localbasedir=$1
+	local ip=$2
+	local basedir=$3
+        local version=$4
+	local user=$5
+	local pass=$6
+
         local cloud
+        local localdir=${localbasedir}/${version}
         local dir=${basedir}/${version}
         local trunk=${basedir}/trunk
         local cloud=${ip}:${trunk}
-        local info="rsync version:${version} from ${dir} to ${cloud}"
+        local info="rsync version:${version} from \"${localbasedir}\" to \"${basedir}\""
 	local param="--ignore-times"
 	local file
         local cmd
@@ -42,12 +46,13 @@ rsync_to_remote() {
         cmd="mkdir -p ${trunk}/rootfs"
 	sudo ${ssh_script} "${ip}" "${user}" "${pass}" "${cmd}"
 
+	echo "${info}..."
         #
         # rsync local version to cloud trunk
         #
-        sudo ${rsync_script} "${dir}/rootfs" "${cloud}/rootfs" "${user}" "${pass}" ${param}
+        sudo ${rsync_script} "${localdir}/rootfs" "${cloud}/rootfs" "${user}" "${pass}" ${param}
         for file in ${fs_list}; do
-                sudo ${rsync_script} "${dir}/${file}" "${cloud}/${file}" "${user}" "${pass}" ${param}
+                sudo ${rsync_script} "${localdir}/${file}" "${cloud}/${file}" "${user}" "${pass}" ${param}
         done
 	for file in ${usb_list}; do
 		cmd="cp -fp ${trunk}/rootfs/image/${file} ${trunk}"
@@ -83,16 +88,13 @@ backup_to_remote() {
 #               local cmd="${hisitopdir}/autelan_scripts/autelan.usb"
 #               ${ssh_script} "${ip}" "${user}" "${pass}" "${cmd}"
 
-#
-#$1:dir
-#
-
 main() {
+	local local_base=${hisitopdir}/lte-fi/mdboard
 	local dir_base=/opt/version/lte-fi/mdboard
 
-	#rsync_to_remote 182.254.198.168 ${dir_base} ${version} root ltefi@Autelan1
-	#rsync_to_remote 192.168.15.26 	${dir_base} ${version} root AutelanE830
-	rsync_to_remote 192.168.15.112 	${dir_base} ${version} root AutelanE830
+	#rsync_to_remote ${local_base}	182.254.198.168	${dir_base} ${version} root ltefi@Autelan1
+	#rsync_to_remote ${local_base}	192.168.15.26 	${dir_base} ${version} root AutelanE830
+	rsync_to_remote ${local_base}	192.168.15.112 	${dir_base} ${version} root AutelanE830
 }
 
 main "$@"
