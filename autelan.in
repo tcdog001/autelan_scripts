@@ -8,10 +8,8 @@ fi
 
 if [ -n "${AUTELAN_DIR}" ]; then
 	. ${AUTELAN_DIR}/autelan.env
-	. ${AUTELAN_DIR}/autelan.apps
 else
 	. autelan.env
-	. autelan.apps
 fi
 
 
