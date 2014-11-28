@@ -5,7 +5,6 @@ build:
 clean:
 	@echo "warning: only support make install!"
 install:
-	./share.sh md
 	./autelan.rootfs install
 uninstall:
 	@echo "warning: only support make install!"

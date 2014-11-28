@@ -33,10 +33,10 @@ main() {
 
 	case "${action}" in
 	"md")
-		md_install
+		#md_install
 		;;
 	"ap")
-		ap_install
+		#ap_install
 		;;
 	*)
 		echo "warning: olny support \"share.sh ap\" or \"share.sh md\"!"

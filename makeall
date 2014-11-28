@@ -12,7 +12,6 @@ ap_make() {
         local err=0;
 
         echo "${info} ..."
-	./share.sh ap
 
         pushd ../trunk_project/trunk
 	./make_71xx.sh ${hisitopdir}; err=$?
@@ -37,7 +36,6 @@ md_make() {
 
         echo "${info} ..."
         ./autelan.private
-	./share.sh md
 
 	pushd ../histb
 	make build; err=$?

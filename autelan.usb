@@ -1,26 +1,31 @@
 #!/bin/bash
 
 . autelan.in
+dir_base=${hisitopdir}/lte-fi
+dir_md=${dir_base}/mdboard
+dir_ws=${dir_base}/website
 
 usb_list="fastboot-burn.bin hi_kernel.bin pq_param_hi3718cv100.bin"
 fs_list="rootfs_200M.ext4 rootfs_data_3000M.ext4"
 
 #
-#$1:dir_base
-#$2:version
+#$1:md_version
+#$2:ws_version
 #
 make_usb() {
-	local dir_base=$1
-	local version=$2
-	local info="make usb.upgrade-${version}.tar.gz"
+	local md_version=$1
+	local ws_version=$2
+	local usbfile=usb.upgrade-${md_version}.tar.gz
+	local info="make ${usbfile}"
 	local file
 
 	echo "${info}..."
-	mkdir -p ${dir_base}/upgrade
-	rm -fr ${dir_base}/upgrade/*
-	#cp -fpR ${dir_base}/${version}/* ${dir_base}/upgrade
-	
-	pushd ${dir_base}/upgrade > /dev/null
+	rm -fr ${dir_md}/upgrade/*
+	mkdir -p ${dir_md}/upgrade/website
+	cp -fpR ${dir_md}/${md_version}/* ${dir_md}/upgrade
+	cp -fpR ${dir_ws}/${ws_version}/* ${dir_md}/upgrade/website
+
+	pushd ${dir_md}/upgrade > /dev/null
 	rm -f ${fs_list}
 	cp -fp ${hisitopdir}/histb/pub/rootfs/usr/sbin/usbub.sh .
 	cp -fp ${hisitopdir}/histb/pub/rootfs/etc/upgrade/usbupgrade .
@@ -29,8 +34,7 @@ make_usb() {
 	done
 	popd > /dev/null
 	
-	pushd ${dir_base} > /dev/null
-	local usbfile=usb.upgrade-${version}.tar.gz 
+	pushd ${dir_md} > /dev/null
 	rm -f ${usbfile}
 	tar zcvf ${usbfile} upgrade/
         popd > /dev/null
@@ -38,18 +42,22 @@ make_usb() {
 }
 
 #
-#$1:version
+#$1:md_version
+#$2:ws_version
 #
 main() {
-	local version=$1
+	local md_version=$1
+	local ws_version=$2
 
-	if [ -z "${version}" ]; then
-		version=$(cat ${hisitopdir}/custom/etc/.version)
+	if [ -z "${md_version}" ]; then
+		md_version=$(cat ${hisitopdir}/custom/etc/.version)
 	fi
 
-	dir_base="mdboard"
-	echo "make_usb ${dir_base} ${version}"
-	make_usb ${dir_base} ${version}
+	if [ -z "${ws_version}" ]; then
+                ws_version=$(cat ${hisitopdir}/website/website/ver.info)
+        fi
+
+	make_usb ${md_version} ${ws_version}
 }
 
 main "$@"
