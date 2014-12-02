@@ -41,6 +41,11 @@ copy_to_local() {
 	mkdir -p ${dir}/rootfs ${dir}/rootfs_data
 	echo "#### cp -fpR ${dir_rootfs}/* ${dir}/rootfs ####"
 	cp -fpR ${dir_rootfs}/* ${dir}/rootfs
+	
+	#modify the file permissions
+	chmod 600 ${dir}/rootfs/etc/ssh/ssh_host_rsa_key
+	chmod 440 ${dir}/etc/sudoers
+
 	chown -R root:root ${dir}/rootfs
 	echo "#### cp -fpR ${dir_rootfs_data}/* ${dir}/rootfs_data #####"
 	cp -fpR ${dir_rootfs_data}/* ${dir}/rootfs_data
