@@ -44,7 +44,7 @@ copy_to_local() {
 	
 	#modify the file permissions
 	chmod 600 ${dir}/rootfs/etc/ssh/ssh_host_rsa_key
-	chmod 440 ${dir}/etc/sudoers
+	chmod 440 ${dir}/rootfs/etc/sudoers
 
 	chown -R root:root ${dir}/rootfs
 	echo "#### cp -fpR ${dir_rootfs_data}/* ${dir}/rootfs_data #####"
@@ -57,7 +57,7 @@ copy_to_local() {
 	mknod ttyAMA1 c 204 65
 	mknod ttyS000 c 204 64
 	popd
-
+	
 	echo "OK:${info}"
 	echo; sleep 1
 
@@ -79,7 +79,7 @@ copy_to_local_ws() {
 	info="install website version:${ws_version} from ${src} to ${dst}"
         echo "${info}..."
 
-	chown -R $(whoami):$(whoami) ${dir}
+	chown -R $(whoami):$(whoami) ${dst}
         rm -fr ${dst}
 
         mkdir -p ${dst}
