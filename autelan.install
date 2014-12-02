@@ -45,6 +45,7 @@ copy_to_local() {
 	#modify the file permissions
 	chmod 600 ${dir}/rootfs/etc/ssh/ssh_host_rsa_key
 	chmod 440 ${dir}/rootfs/etc/sudoers
+	chmod 755 ${dir}/rootfs/usr/local/sudo/libexec/sudoers.so
 
 	chown -R root:root ${dir}/rootfs
 	echo "#### cp -fpR ${dir_rootfs_data}/* ${dir}/rootfs_data #####"
