@@ -28,6 +28,18 @@ fs_list="rootfs_200M.ext4 rootfs_data_3000M.ext4"
 #
 #$1:dir
 #
+rootfs_chmod() {
+	local dir=$1
+
+	chmod 600 ${dir}/rootfs/etc/ssh/ssh_host_rsa_key
+	chmod 440 ${dir}/rootfs/etc/sudoers
+	chmod 755 ${dir}/rootfs/usr/local/sudo/libexec/sudoers.so
+	chmod u+s ${dir}/rootfs/sbin/sudo
+}
+
+#
+#$1:dir
+#
 copy_to_local() {
 	local dir=$1
 	local info
@@ -42,15 +54,13 @@ copy_to_local() {
 	echo "#### cp -fpR ${dir_rootfs}/* ${dir}/rootfs ####"
 	cp -fpR ${dir_rootfs}/* ${dir}/rootfs
 	
-	#modify the file permissions
-	chmod 600 ${dir}/rootfs/etc/ssh/ssh_host_rsa_key
-	chmod 440 ${dir}/rootfs/etc/sudoers
-	chmod 755 ${dir}/rootfs/usr/local/sudo/libexec/sudoers.so
-
 	chown -R root:root ${dir}/rootfs
 	echo "#### cp -fpR ${dir_rootfs_data}/* ${dir}/rootfs_data #####"
 	cp -fpR ${dir_rootfs_data}/* ${dir}/rootfs_data
-        chown -R root:root ${dir}/rootfs_data
+	chown -R root:root ${dir}/rootfs_data
+	
+	#modify the file permissions
+	rootfs_chmod ${dir}	
 	
 	pushd ${dir}/rootfs/dev
 	mknod console c 5 1
