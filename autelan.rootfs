@@ -8,6 +8,7 @@ do_install() {
         echo "rm -f ${hisirootfs}/etc/resolv.conf"
         echo "======================================="
 
+	rm -fr ${hisirootfs}/opt
 	CP ../release/* ${hisirootfs}
 	CP ../custom/* ${hisirootfs}
 

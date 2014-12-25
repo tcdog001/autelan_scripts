@@ -15,17 +15,22 @@ md_install() {
 }
 
 ap_install() {
-	local src=../share
+	local src=../custom
 	local dst=../trunk_project/trunk/package/autelan-shell/src/jsock/etc/
  
 	rm -fr ${dst}/jsock/*
 	rm -fr ${dst}/utils/*
 	rm -fr ${dst}/xinetd.d/*
+	rm -fr ${dst}/stimer/*
+	rm -fr ${dst}/fagent/*
 
+	echo "copy files from ${src}/etc to ${dst}"
 	cp -fpR ${src}/etc/jsock/* ${dst}/jsock
 	cp -fpR ${src}/etc/utils/* ${dst}/utils
 	cp -fpR ${src}/etc/xinetd.d/* ${dst}/xinetd.d
-	rm -f ${dst}/xinetd.d/tftpd_udp	
+	cp -fpR ${src}/etc/stimer/* ${dst}/stimer
+	cp -fpR ${src}/etc/fagent/* ${dst}/fagent
+	cp -fpR ${src}/usr/sbin/sysalarm ${dst}/../usr/sbin
 }
 
 main() {
@@ -36,7 +41,7 @@ main() {
 		#md_install
 		;;
 	"ap")
-		#ap_install
+		ap_install
 		;;
 	*)
 		echo "warning: olny support \"share.sh ap\" or \"share.sh md\"!"
