@@ -15,12 +15,12 @@ dir_md=${dir_base}/mdboard
 dir_ws=${dir_base}/website
 dir_pub=${hisitopdir}/histb/pub
 dir_rootfs=${dir_pub}/rootbox
-dir_rootfs_data=${dir_pub}/rootfs_data
+install_dir_rootfs_data=${dir_pub}/rootfs_data
 dir_image=${dir_pub}/image
-dir_website=${hisitopdir}/website/website
-dir_website_config=${hisitopdir}/website/website_config
+install_dir_website=${hisitopdir}/website/website
+install_dir_website_config=${hisitopdir}/website/website_config
 version=$(cat ${hisitopdir}/custom/etc/.version)
-ws_version=$(cat ${dir_website}/ver.info)
+ws_version=$(cat ${install_dir_website}/ver.info)
 
 usb_list="fastboot-burn.bin hi_kernel.bin pq_param_hi3718cv100.bin"
 fs_list="rootfs_200M.ext4 rootfs_data_3000M.ext4"
@@ -55,8 +55,8 @@ copy_to_local() {
 	cp -fpR ${dir_rootfs}/* ${dir}/rootfs
 	
 	chown -R root:root ${dir}/rootfs
-	echo "#### cp -fpR ${dir_rootfs_data}/* ${dir}/rootfs_data #####"
-	cp -fpR ${dir_rootfs_data}/* ${dir}/rootfs_data
+	echo "#### cp -fpR ${install_dir_rootfs_data}/* ${dir}/rootfs_data #####"
+	cp -fpR ${install_dir_rootfs_data}/* ${dir}/rootfs_data
 	chown -R root:root ${dir}/rootfs_data
 	
 	#modify the file permissions
@@ -90,10 +90,11 @@ copy_to_local_ws() {
 	info="install website version:${ws_version} from ${src} to ${dst}"
         echo "${info}..."
 
-	chown -R $(whoami):$(whoami) ${dst}
+	chown -R $(whoami):$(whoami) ${dir_ws}
         rm -fr ${dst}
 
         mkdir -p ${dst}
+
 	echo "#### cp -fpR ${src}/* ${dst} ####"
         cp -fpR ${src}/* ${dst}
         chown -R root:root ${dst}
@@ -106,9 +107,9 @@ main() {
 	copy_to_local ${dir_md}/${version}
 	copy_to_local ${dir_md}/trunk
 	
-	copy_to_local_ws ${dir_website} ${dir_ws}/${ws_version}
-	copy_to_local_ws ${dir_website} ${dir_ws}/trunk
-	copy_to_local_ws ${dir_website_config} ${dir_ws}/website_config
+	copy_to_local_ws ${install_dir_website} ${dir_ws}/${ws_version}
+	copy_to_local_ws ${install_dir_website} ${dir_ws}/trunk
+	copy_to_local_ws ${install_dir_website_config} ${dir_ws}/website_config
 }
 
 main "$@"

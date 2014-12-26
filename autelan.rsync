@@ -7,9 +7,9 @@ popd
 rsync_script=./rsync.sh
 ssh_script=./ssh.sh
 
-dir_website=${hisitopdir}/website/website
+src_dir_website=${hisitopdir}/website/website
 version=$(cat ${hisitopdir}/custom/etc/.version)
-ws_version=$(cat ${dir_website}/ver.info)
+ws_version=$(cat ${src_dir_website}/ver.info)
 
 usb_list="fastboot-burn.bin hi_kernel.bin pq_param_hi3718cv100.bin"
 fs_list="rootfs_200M.ext4 rootfs_data_3000M.ext4"
@@ -31,7 +31,7 @@ rsync_to_remote() {
         local version=$4
 	local user=$5
 	local pass=$6
-        local localdir=${localbasedir}/${version}
+        local src_dir=${localbasedir}/${version}
         local dir=${basedir}/${version}
         local trunk=${basedir}/trunk
         local info="rsync version:${version} from ${localbasedir} to ${ip}:${trunk}"
@@ -49,9 +49,9 @@ rsync_to_remote() {
         #
         # rsync local version to ${ip}:${trunk}
         #
-        sudo ${rsync_script} "${localdir}/rootfs" "${ip}:${trunk}/rootfs" "${user}" "${pass}" ${param}
+        sudo ${rsync_script} "${src_dir}/rootfs" "${ip}:${trunk}/rootfs" "${user}" "${pass}" ${param}
         for file in ${fs_list}; do
-                sudo ${rsync_script} "${localdir}/${file}" "${ip}:${trunk}/${file}" "${user}" "${pass}" ${param}
+                sudo ${rsync_script} "${src_dir}/${file}" "${ip}:${trunk}/${file}" "${user}" "${pass}" ${param}
         done
 	for file in ${usb_list}; do
 		cmd="cp -fp ${trunk}/rootfs/image/${file} ${trunk}"
@@ -84,11 +84,11 @@ rsync_to_remote_ws() {
         local version=$4
         local user=$5
         local pass=$6
-        local localdir=${localbasedir}/${version}
+        local src_dir=${localbasedir}/${version}
         local dir=${basedir}/${version}
         local trunk=${basedir}/trunk
-	local localdir_config=${localbasedir}/website_config
-	local dir_config=${basedir}/website_config
+	local src_dir_config=${localbasedir}/website_config
+	local dst_dir_config=${basedir}/website_config
         local info="rsync version:${version} from ${localbasedir} to ${ip}:${trunk}"
         local param="--ignore-times"
         local cmd
@@ -96,18 +96,18 @@ rsync_to_remote_ws() {
         #
         # create trunk/config
         #
-        cmd="mkdir -p ${trunk} ${dir_config}"
+        cmd="mkdir -p ${trunk} ${dst_dir_config}"
         sudo ${ssh_script} "${ip}" "${user}" "${pass}" "${cmd}"
 
         #
         # rsync local version to ${ip}:${trunk}
         #
-        sudo ${rsync_script} "${localdir}" "${ip}:${trunk}" "${user}" "${pass}" ${param}
+        sudo ${rsync_script} "${src_dir}" "${ip}:${trunk}" "${user}" "${pass}" ${param}
 
         #
         # rsync website config
         #
-        sudo ${rsync_script} "${localdir_config}" "${ip}:${dir_config}" "${user}" "${pass}" ${param}
+        sudo ${rsync_script} "${src_dir_config}" "${ip}:${dst_dir_config}" "${user}" "${pass}" ${param}
 
         #
         # copy trunk to version on cloud
