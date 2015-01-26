@@ -19,7 +19,8 @@ main() {
 
 	cp -f package/top/Makefile ${hisitopdir}/histb/source/rootfs/top/
 	cp -f rootfs/e2fsprogs/Makefile ${hisitopdir}/histb/source/rootfs/e2fsprogs/
-	echo "copy rootfs: top e2fsprogs ok"
+	cp -f rootfs/busybox/*.c ${hisitopdir}/histb/source/rootfs/busybox/gcc4.4/tmp/busybox-1.16.1/networking/udhcp/
+	echo "copy rootfs: top busybox e2fsprogs ok"
 
 	cp -f kernel/linux-3.10.y/autelan.config ${hisitopdir}/histb/source/kernel/linux-3.10.y/
 	cp -f kernel/linux-3.10.y/autelan.config ${hisitopdir}/histb/source/kernel/linux-3.10.y/.config
