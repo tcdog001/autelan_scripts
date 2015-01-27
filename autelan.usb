@@ -20,13 +20,13 @@ make_usb() {
 	local file
 
 	echo "${info}..."
-	rm -fr ${dir_md}/upgrade/*
+	sudo rm -fr ${dir_md}/upgrade/*
 	mkdir -p ${dir_md}/upgrade/website
-	cp -fpR ${dir_md}/${md_version}/* ${dir_md}/upgrade
+	sudo cp -fpR ${dir_md}/${md_version}/* ${dir_md}/upgrade
 	cp -fpR ${dir_ws}/${ws_version}/* ${dir_md}/upgrade/website
 
 	pushd ${dir_md}/upgrade > /dev/null
-	rm -f ${fs_list}
+	sudo rm -f ${fs_list}
 	cp -fp ${hisitopdir}/histb/pub/rootfs/usr/sbin/usbub.sh .
 	cp -fp ${hisitopdir}/histb/pub/rootfs/etc/upgrade/usbupgrade .
 	for file in ${usb_list}; do
@@ -35,8 +35,8 @@ make_usb() {
 	popd > /dev/null
 	
 	pushd ${dir_md} > /dev/null
-	rm -f ${usbfile}
-	tar zcvf ${usbfile} upgrade/
+	sudo rm -f ${usbfile}
+	sudo tar zcvf ${usbfile} upgrade/
         popd > /dev/null
 	echo "OK: ${info}"
 }

@@ -81,10 +81,6 @@ do_make() {
 	${hisitopdir}/autelan_scripts/autelan.install ${hisitopdir} || {
 		return 1
 	}
-
-	${hisitopdir}/autelan_scripts/autelan.usb || {
-                return 1
-        }
 }
 
 file_make_lock=/tmp/.make_lock
