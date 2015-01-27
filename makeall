@@ -83,9 +83,9 @@ do_make() {
 		return 1
 	}
 
-	${hisitopdir}/autelan_scripts/autelan.usb || {
-                return 1
-        }
+#	${hisitopdir}/autelan_scripts/autelan.usb || {
+#                return 1
+#        }
 }
 
 #

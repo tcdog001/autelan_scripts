@@ -7,6 +7,8 @@ dir_ws=${dir_base}/website
 
 usb_list="fastboot-burn.bin hi_kernel.bin pq_param_hi3718cv100.bin"
 fs_list="rootfs_200M.ext4 rootfs_data_3000M.ext4"
+upgrade_list="usr/sbin/usbub.sh etc/upgrade/usbupgrade etc/upgrade/usbwebsiteupgrade"
+
 
 #
 #$1:md_version
@@ -20,23 +22,26 @@ make_usb() {
 	local file
 
 	echo "${info}..."
-	rm -fr ${dir_md}/upgrade/*
-	mkdir -p ${dir_md}/upgrade/website
-	cp -fpR ${dir_md}/${md_version}/* ${dir_md}/upgrade
-	cp -fpR ${dir_ws}/${ws_version}/* ${dir_md}/upgrade/website
+	sudo rm -fr ${dir_md}/upgrade/*
+	sudo mkdir -p ${dir_md}/upgrade/website
+	sudo cp -fpR ${dir_md}/${md_version}/* ${dir_md}/upgrade
+	sudo cp -fpR ${dir_ws}/${ws_version}/* ${dir_md}/upgrade/website
 
 	pushd ${dir_md}/upgrade > /dev/null
-	rm -f ${fs_list}
-	cp -fp ${hisitopdir}/histb/pub/rootfs/usr/sbin/usbub.sh .
-	cp -fp ${hisitopdir}/histb/pub/rootfs/etc/upgrade/usbupgrade .
+	sudo rm -f ${fs_list}
+	for file in ${upgrade_list}; do
+                if [ -f "rootfs/${file}" ]; then
+                        sudo cp -fp rootfs/${file} .
+                fi
+        done
 	for file in ${usb_list}; do
-		ln -sf rootfs/image/${file} ${file}
+		sudo ln -sf rootfs/image/${file} ${file}
 	done
 	popd > /dev/null
 	
 	pushd ${dir_md} > /dev/null
-	rm -f ${usbfile}
-	tar zcvf ${usbfile} upgrade/
+	sudo rm -f ${usbfile}
+	sudo tar zcvf ${usbfile} upgrade/
         popd > /dev/null
 	echo "OK: ${info}"
 }
