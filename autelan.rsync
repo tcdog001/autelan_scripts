@@ -129,7 +129,7 @@ main() {
 
 	local -A hash=( \
 		[182.254.198.168]=ltefi@Autelan1 \
-		[192.168.15.26]=AutelanE830 \
+#		[192.168.15.26]=AutelanE830 \
 		[192.168.15.112]=AutelanE830 \
 	)
 	local ip
@@ -138,7 +138,7 @@ main() {
 		pass=${hash[${ip}]}
 
 		rsync_to_remote		${local_md}	${ip} ${dir_md}	${version} 	root ${pass}
-		rsync_to_remote_ws	${local_ws}	${ip} ${dir_ws}	${ws_version}	root ${pass}
+#		rsync_to_remote_ws	${local_ws}	${ip} ${dir_ws}	${ws_version}	root ${pass}
 	done
 }
 
