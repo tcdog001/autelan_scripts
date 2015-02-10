@@ -66,7 +66,6 @@ main() {
 	local version="$1"; version=${version:-${ws_version}}
 	local -A hash=( \
 		[182.254.198.168]=ltefi@Autelan1 \
-		[192.168.15.26]=AutelanE830 \
 		[192.168.15.112]=AutelanE830 \
 	)
 	local ip
