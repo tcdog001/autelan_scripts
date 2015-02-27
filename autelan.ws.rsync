@@ -74,7 +74,7 @@ main() {
 		pass=${hash[${ip}]}
 
 		rsync_to_remote_ws \
-			${hisitopdir}/lte-fi/website \
+			${hisitopdir}/website \
 			${ip} \
 			/opt/version/lte-fi/website \
 			${version} \
