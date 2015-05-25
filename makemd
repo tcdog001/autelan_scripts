@@ -9,7 +9,7 @@ if [ -z "${hisitopdir}" ]; then export hisitopdir=$(hisitopdir.sh $0); fi
 main() {
         local version=$1
 
-	make_obj ${version} no_install "ap md"
+	make_obj ${version} no_install md
 }
 
 main "$@"

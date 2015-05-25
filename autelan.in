@@ -6,12 +6,8 @@ else
 	__HISI_AUTELAN_IN__="$0"
 fi
 
-if [ -n "${AUTELAN_DIR}" ]; then
-	. ${AUTELAN_DIR}/autelan.env
-else
-	. autelan.env
-fi
-
+if [ -z "${hisitopdir}" ]; then export hisitopdir=$(hisitopdir.sh $0); fi
+. ${hisitopdir}/autelan_scripts/autelan.env
 
 #
 # copy from openwrt rule.mk
@@ -130,19 +126,38 @@ ftpput() {
 
         mkdir -p $(dirname ${dir_local}/${file})
 
+	local file_remote
+	if [[ "_" == "${dir_remote}" ]]; then
+		file_remote=${file}
+	else
+		file_remote=${dir_remote}/${file}
+	fi
+
         busybox ftpput -u ${user} -p ${pass} ${server} \
-                ${dir_remote}/${file} ${dir_local}/${file}; err=$?
+                ${file_remote} ${dir_local}/${file}; err=$?
         if [ "0" != "${err}" ]; then
                 tag="ERROR[${err}]"
         fi
 
-        echo "${tag}: ftpput ${dir_local}/${file} to ${server}:${dir_remote}/${file}"
+        echo "${tag}: ftpput ${dir_local}/${file} to ${server}:${file_remote}"
 
         return ${err}
 }
 
-liujf_ip() {
-	cat ${hisitopdir}/autelan/.liujf.ip
+#
+#$1:dir_local
+#$2:dir_remote
+#$3:file
+#
+ftpget_byuser() {
+        local dir_local=$1
+        local dir_remote=$2
+        local file=$3
+
+	local ip user pass
+	read ip user pass _ < .user
+
+	ftpget ${ip} ${user} ${pass} ${dir_local} ${dir_remote} ${file}
 }
 
 #
@@ -150,25 +165,15 @@ liujf_ip() {
 #$2:dir_remote
 #$3:file
 #
-ftpget_byliujf() {
+ftpput_byuser() {
         local dir_local=$1
         local dir_remote=$2
         local file=$3
 
-	ftpget $(liujf_ip) liujf ljfljfljf ${dir_local} ${dir_remote} ${file}
-}
+	local ip user pass
+	read ip user pass _ < .user
 
-#
-#$1:dir_local
-#$2:dir_remote
-#$3:file
-#
-ftpput_byliujf() {
-        local dir_local=$1
-        local dir_remote=$2
-        local file=$3
-
-        ftpput $(liujf_ip) liujf ljfljfljf ${dir_local} ${dir_remote} ${file}
+        ftpput ${ip} ${user} ${pass} ${dir_local} ${dir_remote} ${file}
 }
 
 #
@@ -215,4 +220,35 @@ package_common() {
 	package_install $1
 }
 
+git_pull() {
+	local dir="$1"
+	local url="$2"
+
+	if  [[ ! -d "${dir}/.git" ]]; then
+		rm -fr ${dir}
+		git clone ${url} ${dir}
+	fi
+
+	pushd ${dir}
+	git pull
+	echo "git clone to ${dir}"
+	popd
+}
+
+autelan_git_pull() {
+	local dir_capp=${hisitopdir}/capp
+	
+	git_pull ${dir_capp} git@192.168.15.112:capp.git
+}
+
+install_autelan() {
+        local dst="$1"
+        local dir_capp=${hisitopdir}/capp
+
+        rm -fr ${dst}/*
+        mkdir -p ${dst}
+        cp -fpR ${dir_capp}/* ${dst}/
+	
+	echo "install capp to ${dst}"
+}
 
