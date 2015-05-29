@@ -3,7 +3,7 @@
 . autelan.in
 
 dir_pub=${hisitopdir}/histb/pub
-file_list="fastboot-burn.bin hi_kernel.bin sysupgrade.bin rootfs_config_32M.ext4 rootfs_data_820M.ext4 rootfs_256M.ext4"
+file_list="fastboot-burn.bin hi_kernel.bin sysupgrade.bin rootfs_data_3000M.ext4 rootfs_200M.ext4"
 
 main() {
 	local remote; read _ _ _ remote < .user
