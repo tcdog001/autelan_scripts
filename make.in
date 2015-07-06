@@ -14,6 +14,7 @@ ap_make() {
 	local dir_ap=${hisitopdir}/trunk_project/trunk
 
         echo "${info} ..."
+	./share.sh ap
 
         pushd ${dir_ap}
 	./make_71xx.sh ${hisitopdir}; err=$?
