@@ -7,7 +7,6 @@ popd
 rsync_script=./rsync.sh
 ssh_script=./ssh.sh
 
-src_dir_website=${hisitopdir}/website/website
 version=$(cat ${hisitopdir}/custom/etc/.version)
 
 usb_list="fastboot-burn.bin hi_kernel.bin pq_param_hi3718cv100.bin"
@@ -75,8 +74,6 @@ main() {
 	local dir_md=${dir_base}/mdboard
 
 	local -A hash=( \
-		[182.254.198.168]=ltefi@Autelan1 \
-		[192.168.15.26]=AutelanE830 \
 		[192.168.15.112]=AutelanE830 \
 	)
 	local ip

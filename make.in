@@ -1,0 +1,126 @@
+#!/bin/bash
+
+if [ -z "${hisitopdir}" ]; then export hisitopdir=$(hisitopdir.sh $0); fi
+. ${hisitopdir}/autelan_scripts/autelan.in
+. ${hisitopdir}/custom/etc/utils/utils.in
+
+#
+#$1:version
+#
+ap_make() {
+	local version=$1
+        local info="make ap version:${version}"
+        local err=0;
+	local dir_ap=${hisitopdir}/trunk_project/trunk
+
+        echo "${info} ..."
+	./share.sh ap
+
+        pushd ${dir_ap}
+	./make_71xx.sh ${hisitopdir}; err=$?
+	popd
+	if [ "0" == "${err}" ]; then
+		echo "OK:${info}"
+	else
+		echo "ERROR[${err}]:${info}"
+		exit 1
+	fi
+}
+
+#
+#$1:version
+#
+__md_make() {
+        local version=$1
+        local info="make md version:${version}"
+        local err=0;
+
+        pushd ${hisitopdir}/histb
+        make build V=1; err=$?
+        popd
+
+	if [ "0" == "${err}" ]; then
+                echo "OK:${info}"
+        else
+                echo "ERROR[${err}]:${info}"
+		exit 1
+	fi
+}
+
+#
+#$1:version
+#
+md_make() {
+	local version=$1
+
+	./autelan.private
+
+	if [[ ! -f ${hisitopdir}/histb/pub/include/hi_unf_wdg.h ]]; then
+		__md_make ${version}
+	fi
+
+	__md_make ${version}
+	cp -f ${hisitopdir}/custom/image/sysupgrade.bin ${hisitopdir}/histb/pub/image/
+}
+
+
+#
+#$1:version
+#
+save_version() {
+        local version=$1
+
+        echo ${version} > ${hisitopdir}/version
+        echo ${version} > ${hisitopdir}/custom/etc/.version
+}
+
+#
+#$1:version
+#$2:install
+#$3:objs...
+#
+__make_obj() {
+        local version=$1;
+        local install=$2; shift 2
+        local objs="$*"
+        local obj
+        local err=0
+
+        save_version ${version}
+
+        for obj in ${objs}; do
+                ${obj}_make ${version} || {
+                        return 1
+                }
+        done
+
+        if [[ "install" == "${install}" ]]; then
+                ${hisitopdir}/autelan_scripts/autelan.install ${hisitopdir} || {
+                        return 1
+                }
+        fi
+}
+
+file_make_lock=/tmp/.$(whoami).ltefi2.lock
+
+#
+#$1:version
+#$2:install
+#$3:objs...
+#
+make_obj() {
+        local version=$1
+	
+        version_check ${version} || {
+                echo "bad version:${version}"
+                return 1
+        }
+
+	exec_with_flock ${file_make_lock} __make_obj "$@" 
+	rm -f ${hisitopdir}/version
+
+	if [[ -f .user ]]; then
+		./.putfiles
+	fi
+}
+
