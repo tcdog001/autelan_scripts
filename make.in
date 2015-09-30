@@ -101,7 +101,7 @@ __make_obj() {
         fi
 }
 
-file_make_lock=/tmp/.$(whoami).ltefi2.lock
+file_make_lock=/tmp/.$(whoami).ltefi.lock
 
 #
 #$1:version
