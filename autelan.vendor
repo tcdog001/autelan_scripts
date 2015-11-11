@@ -35,11 +35,12 @@ do_vendor() {
         while read vendor_name list_name else; do
 		if [[ "${vendor}" = "${vendor_name}" ]]; then
 			echo ${list_name} > ${list}
+			rm ${list_tmp}
 			return ${ret}
 		fi
 	done < ${list_tmp}
 	rm ${list_tmp}
-
+	
 	ret=${RET_VENDOR}
 	return ${ret}
 }
@@ -189,7 +190,11 @@ check_para() {
 
 	case ${type} in
 		list|show)
-			cat ${list}; ret=$?
+			if [[ -z ${list} ]]; then
+				ret=${RET_VENDOR}
+			else
+				cat ${list}; ret=$?
+			fi
 		;;
 		check)
 			do_checkout ${para}; ret=$?
