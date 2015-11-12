@@ -17,7 +17,8 @@ md_install() {
 ap_install() {
 	local src=../custom
 	local dst=../trunk_project/trunk/package/autelan-shell/src/jsock/etc
- 
+
+
 	rm -fr ${dst}/jsock
 	rm -fr ${dst}/utils
 	rm -fr ${dst}/xinetd.d
