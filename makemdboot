@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ -z "${hisitopdir}" ]; then export hisitopdir=$(hisitopdir.sh $0); fi
+. ${hisitopdir}/autelan_scripts/make.in
+
+#
+#$1:version
+#
+main() {
+	local boot=${hisitopdir}/histb/pub/image/fastboot-burn.bin
+
+	make_obj 0.0.0.1 no_install mdboot
+	cp ${boot} ${hisitopdir}/release/image/; rm -f ${boot}
+}
+
+main "$@"
+
