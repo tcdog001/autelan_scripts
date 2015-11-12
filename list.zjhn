@@ -1,8 +1,10 @@
+#dir			#branch
 |autelan_scripts|	master
 |capp|			master
-|custom|		master
 |release|		master
 |rootfs_data|		master
 |sdk_changes|		master
 |trunk_project|		master
 |website|		master
+|custom|		zjhn
+|custom_bak|		master
