@@ -1,0 +1,227 @@
+#!/bin/bash
+
+if [ -z "${hisitopdir}" ]; then
+	export hisitopdir=$(hisitopdir.sh $0)
+fi
+
+VENDOR_LIST=vendor.list
+VENDOR_BRANCH_LIST=.branch.list
+array_ret=(0 1 2 3)
+RET_VENDOR=${array_ret[3]}
+RET_HELP=${array_ret[2]}
+RET_WARN=${array_ret[1]}
+RET_OK=${array_ret[0]}
+
+get_vendor() {
+	local list=${VENDOR_BRANCH_LIST}
+	[[ -f ${list} ]] && echo $(cat ${list})
+}
+
+do_vendor() {
+	local vendor="$1"
+	local list=${VENDOR_BRANCH_LIST}
+	local vendor_list=${VENDOR_LIST}
+	local list_tmp=".${list}"
+	local ret=${RET_OK}
+	
+	vendor_old=$(get_vendor | awk -F '.' '{print $2}')
+
+	[[ -z ${vendor} ]] && {
+		echo ${vendor_old}
+		return ${ret}
+	}
+	sed '/#/d;/^$/d' ${vendor_list} > ${list_tmp}
+
+        while read vendor_name list_name else; do
+		if [[ "${vendor}" = "${vendor_name}" ]]; then
+			echo ${list_name} > ${list}
+			rm ${list_tmp}
+			return ${ret}
+		fi
+	done < ${list_tmp}
+	rm ${list_tmp}
+	
+	ret=${RET_VENDOR}
+	return ${ret}
+}
+
+do_del() {
+	local dir="|$1|"
+	local list=$(get_vendor)
+	local ret=${RET_OK}
+
+	eval sed -i '/${dir}/d' ${list} 2> /dev/null; ret=$?
+	return ${ret}
+}
+
+do_add() {
+	local dir="|$1|"
+	local branch="$2"
+
+	local list=$(get_vendor)
+	local ret=${RET_OK}
+	local string=""
+
+	if [[ -z ${dir} ]]; then
+		ret=${RET_HELP}
+	elif [[ ${dir} && ${branch} ]]; then
+		eval sed -i '/${dir}/d' ${list}
+		echo "${dir}		${branch}" >> ${list}
+	elif [[ ${dir} && -z ${branch} ]]; then
+		ret=${RET_HELP}
+	fi
+	return ${ret}
+}
+
+do_checkout() {
+	local dir="$1"
+	local list=$(get_vendor)
+	local ret=${RET_OK}
+
+	if [[ ${dir} = "all" ]]; then
+		do_checkout_all; ret=$?
+	elif [[ -z ${dir} ]]; then
+		ret=${RET_HELP}
+	else
+		do_checkout_dir "${dir}"; ret=$?
+	fi
+	return ${ret}
+}
+
+do_checkout_dir() {
+	local dir="$1"
+	local dir_name="|${dir}|"
+
+	local list=$(get_vendor)
+	local branch=""
+	local ret=${RET_OK}
+
+	branch=$(eval sed -n '/${dir_name}/p' ${list} | awk '{print $2}')
+	[[ -z ${branch} ]] && return ${ret}
+	[[ ! -d ${hisitopdir}/${dir} ]] && return ${ret}
+	
+	pushd ${hisitopdir}/${dir} &> /dev/null
+	echo "IN |${dir}|"
+	git checkout ${branch}; ret=$?
+	popd &> /dev/null
+	[[ ${ret} -ne 0 ]] && return ${ret}
+
+	return ${ret}
+}
+
+do_checkout_all() {
+	local list=$(get_vendor)
+	local list_tmp=.list.in
+	local ret=${RET_OK}
+
+	sed '/#/d;/^$/d' ${list} > ${list_tmp}
+
+	echo "------------------------------------------------"
+	while read dir_name branch else; do
+		local dir=$(echo ${dir_name} | sed 's/|//g')
+		if [[ -z ${branch} ]]; then
+			echo "Please add \"${dir} [branch]\" in ${list}"
+			ret=${RET_HELP}
+			return ${ret}
+		fi
+		pushd ${hisitopdir}/${dir} &> /dev/null
+		echo "IN ${dir}:"
+		git checkout ${branch}; ret=$?
+		echo "------------------------------------------------"
+		popd &> /dev/null
+		if [[ ${ret} -ne 0 ]]; then
+			ret=${RET_WARN}
+			return ${ret}
+		fi
+	done < ${list_tmp}
+	rm ${list_tmp}
+
+	return ${ret}
+}
+do_help() {
+	local ret="$1"
+	
+	case ${ret} in
+		${RET_WARN})
+			echo
+			echo "Warning!"
+			echo
+			;;
+		${RET_HELP})
+			echo
+			do_help_print
+			echo
+			;;
+		${RET_VENDOR})
+			echo
+			echo "Vendor ${vendor} Not Support Yet! See ${VENDOR_LIST}."
+			echo
+			;;
+		*)
+			;;
+	esac
+	
+	ret=${RET_OK}
+	return ${ret}
+}
+do_help_print() {
+	local ret=${RET_OK}
+	local list=$(get_vendor)
+
+	echo "SYNOPSIS"
+	echo "	autelan.vendor [options] [dir] [branch]"
+	echo "DESCRIPTION"
+	echo "	vendor		[vendor]. Set vendor for project. Commands blow base on this para."
+	echo "	list		[dir]. Show \$dir \$branch pairs in ${list}."
+	echo "	check		[all|dir]. Checkout \$dir as branch in ${list}. \"all\" means all dirs in ${list}."
+	echo 
+	echo "	add		[dir] [branch]. Set \$dir \$branch in pair."
+	echo "	del		[dir]. Delete \$dir in ${list}."
+
+	return ${ret}
+}
+
+
+check_para() {
+	local type="$1";shift
+	local para="$@"
+	local ret=${RET_OK}
+	local list=$(get_vendor)
+
+	case ${type} in
+		list|show)
+			if [[ -z ${list} ]]; then
+				ret=${RET_VENDOR}
+			else
+				cat ${list}; ret=$?
+			fi
+		;;
+		check)
+			do_checkout ${para}; ret=$?
+		;;
+		del)
+			do_del ${para}; ret=$?
+		;;
+		add)
+			do_add ${para}; ret=$?
+		;;
+		vendor)
+			do_vendor ${para}; ret=$?
+		;;
+		*)
+			ret=${RET_HELP}
+		;;
+	esac
+	return ${ret}
+}
+
+main() {
+	local ret=${RET_OK}
+
+	check_para "$@"; ret=$?
+	do_help ${ret}; ret=$?
+	
+	return ${ret}	
+}
+
+main "$@"
