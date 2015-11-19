@@ -53,6 +53,7 @@ mdbusybox_make() {
         local info="make md busybox"
         local err=0
 
+	./pullall.sh
         ./autelan.private
 
         pushd ${hisitopdir}/histb
