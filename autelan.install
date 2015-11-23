@@ -73,8 +73,14 @@ copy_to_local() {
 	echo; sleep 1
 
 	for file in ${fs_list} ${usb_list}; do
-		cp -f ${dir_image}/${file} ${dir}
-		chown -R root:root ${dir}/${file}
+		if [[ -f ${dir_image}/${file} ]]; then
+			cp -f ${dir_image}/${file} ${dir}
+			chown -R root:root ${dir}/${file}
+		else
+			echo "***WARNING***, no-found ${dir_image}/${file}"
+			echo "***WARNING***, no-found ${dir_image}/${file}"
+			echo "***WARNING***, no-found ${dir_image}/${file}"
+		fi
 	done
 }
 
