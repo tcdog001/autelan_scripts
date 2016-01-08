@@ -4,6 +4,7 @@ if [ -z "${hisitopdir}" ]; then export hisitopdir=$(hisitopdir.sh $0); fi
 . ${hisitopdir}/autelan_scripts/autelan.in
 
 dir_histb=${hisitopdir}/histb
+dir_custom=${hisitopdir}/custom
 dir_sdk_changes=${hisitopdir}/sdk_changes
 
 install_makefile() {
@@ -34,8 +35,6 @@ install_kernel() {
 	cp -f ${dir_src}/${version}/autelan.config ${dir_dst}/${version}/.config
 
 	echo "copy kernel: config ok"
-	
-	cp -f ${dir_src}/${version}/drivers/usb/serial/option.c ${dir_dst}/${version}/drivers/usb/serial/
 }
 
 install_busybox0() {
@@ -75,7 +74,7 @@ install_busybox() {
 
 install_rootfs() {
 	cp -f ${dir_sdk_changes}/rootfs/Makefile.rootfs ${dir_histb}/source/rootfs/Makefile
-	cp -f ${dir_sdk_changes}/rootfs/top/Makefile ${dir_histb}/source/rootfs/top/
+	#cp -f ${dir_sdk_changes}/rootfs/top/Makefile ${dir_histb}/source/rootfs/top/
         cp -f ${dir_sdk_changes}/rootfs/e2fsprogs/Makefile ${dir_histb}/source/rootfs/e2fsprogs/
 
 	echo "copy rootfs: top e2fsprogs ok"
@@ -93,11 +92,21 @@ install_scripts() {
 	echo "copy scripts ok"
 }
 
+rootfs_chmod() {
+        local dir=$dir_custom
+
+        chmod 600 ${dir}/etc/ssh/ssh_host_rsa_key
+        chmod 440 ${dir}/etc/sudoers
+        chmod 755 ${dir}/usr/local/sudo/libexec/sudoers.so
+        chmod u+s ${dir}/sbin/sudo
+}
+
 main() {
 	local obj="$1"
-	local objs="makefile boot kernel rootfs sample scripts busybox0"
+	local objs="makefile boot kernel rootfs sample busybox0"
 	local object
 	capp_git_pull
+	rootfs_chmod
 
 	case ${obj} in
 	makefile|boot|kernel|rootfs|sample|scripts|busybox)
