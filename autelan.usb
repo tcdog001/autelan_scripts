@@ -29,6 +29,8 @@ make_usb() {
 	sudo rm -f ${fs_list}
 	cp -fp ${hisitopdir}/histb/pub/rootfs/usr/sbin/usbub.sh .
 	cp -fp ${hisitopdir}/histb/pub/rootfs/etc/upgrade/usbupgrade .
+	cp -fp ${hisitopdir}/histb/pub/rootfs/usr/sbin/md_fakerollback .
+
 	for file in ${usb_list}; do
 		ln -sf rootfs/image/${file} ${file}
 	done
