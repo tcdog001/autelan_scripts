@@ -12,9 +12,16 @@ ap_make() {
         local info="make ap version:${version}"
         local err=0;
 	local dir_ap=${hisitopdir}/trunk_project/trunk
+	local dir_target
 
         echo "${info} ..."
 	./share.sh ap
+
+	capp_git_pull
+
+	dir_target=${dir_ap}/package/capp
+	install_capp ${dir_target}
+	cp ${dir_target}/openwrt.mk ${dir_target}/Makefile
 
         pushd ${dir_ap}
 	./make_71xx.sh ${hisitopdir}; err=$?
